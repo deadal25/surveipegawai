@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medalist Best Employee - Detail Penilaian</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    h1 { color: #0d47a1; text-align: center; }
+
+    .btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 8px 16px;
+    }
+    .btn:disabled { background: gray; }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    #medalistTableContainer { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 14px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+    }
+
+    th {
+      background-color: #0d47a1;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    tr:nth-child(even) { background-color: #f9f9f9; }
+
+    td, th {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+      vertical-align: middle;
+    }
+    /* nav { background: #0d47a1; padding: 10px 20px; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 8px 8px; } */
+    /* body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; } */
+    /* .container { max-width: 800px; margin: 30px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); } */
+    #subJudulTriwulan {
+      font-size: 12px;
+      color: #ddd;
+      font-weight: normal;
+      margin-top: -4px;
+      display: block;
+    }
+    nav { background: #0d47a1; padding: 10px 20px; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 8px 8px; }
+    .form-group { margin-top: 20px; }
+    label { display: block; margin-bottom: 6px; font-weight: bold; }
+    select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    .employee-section { text-align: center; margin-top: 20px; }
+    .employee-photo { width: 150px; border-radius: 8px; }
+    /* table { width: 100%; border-collapse: collapse; margin-top: 10px; } */
+    /* th, td { border: 1px solid #ccc; text-align: center; padding: 10px; } */
+    /* th { background-color: #eee; } */
+    .btn-container { text-align: right; margin-top: 20px; }
+    button { padding: 8px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    .next-btn { background: #007bff; color: white; font-weight: bold; }
+    .prev-btn { background: #888; color: white; }
+    .hidden { display: none; }
+    .total-wrapper { display: flex; justify-content: flex-end; margin-top: 15px; }
+    .total-box { font-weight: bold; background-color: #e3f2fd; color: #0d47a1; padding: 10px 16px; border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
+    /* nav {
+      background: #0d47a1;
+      padding: 10px 20px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 0 0 8px 8px;
+      min-height: 60px;
+    } */
+
+    /* label { font-weight: bold; margin-right: 10px; } */
+    /* select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; } */
+
+    @media (max-width: 600px) {
+      .hide-on-mobile {
+        display: none;
+      }
+      table {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div><strong>Survei Best Employee</strong></div>
+  <div>
+    <label for="triwulanSelect">Triwulan:</label>
+    <select id="triwulanSelect">
+      <option value="Triwulan1">I</option>
+      <option value="Triwulan2">II</option>
+      <option value="Triwulan3">III</option>
+      <option value="Triwulan4">IV</option>
+    </select>
+    <button onclick="window.location.href='index.html'" style="margin-left:10px;background:gold;color:black;border-radius:5px;">🔙 Kembali</button>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>🏆 Halaman Medalist Detail</h1>
+  <button class="btn" onclick="tampilkanMedalist()">Tampilkan</button>
+  <button class="btn" onclick="downloadExcel()" id="downloadBtn" disabled>📥 Download Excel</button>
+  <div id="medalistTableContainer"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBT5x1OXqBu14Ep8TG91Tr-OkhcuSIV9qc",
+    authDomain: "kppnmajene0059.firebaseapp.com",
+    databaseURL: "https://kppnmajene0059-default-rtdb.firebaseio.com",
+    projectId: "kppnmajene0059",
+    storageBucket: "kppnmajene0059.appspot.com",
+    messagingSenderId: "258408908708",
+    appId: "1:258408908708:web:6fd534dd3aa7ea72952331"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  const komponen = ["Kedisiplinan","Kerja sama","Kreativitas","Komitmen","Manajemen Waktu","Inisiatif","Komunikasi","Perilaku","Tanggung Jawab","Pengetahuan Teknis"];
+  let hasilDetail = {};
+
+  function tampilkanMedalist() {
+    const triwulan = document.getElementById("triwulanSelect").value;
+    document.getElementById("downloadBtn").disabled = true;
+    const container = document.getElementById("medalistTableContainer");
+    container.innerHTML = "Memuat data...";
+
+    database.ref(`SurveiBestEmployee/${triwulan}`).once("value").then(snapshot => {
+      const data = snapshot.val();
+      if (!data) return container.innerHTML = "<p>Tidak ada data.</p>";
+
+      const hasil = {};
+      for (const responden in data) {
+        const penilaian = data[responden];
+        for (const nama in penilaian) {
+          if (!hasil[nama]) hasil[nama] = Array(komponen.length).fill(0);
+          Object.values(penilaian[nama]).forEach((nilai, i) => {
+            hasil[nama][i] += nilai ?? 0;
+          });
+        }
+      }
+      hasilDetail = hasil;
+      renderTable();
+      document.getElementById("downloadBtn").disabled = false;
+    });
+  }
+
+  function renderTable() {
+  const container = document.getElementById("medalistTableContainer");
+  const sortedData = Object.entries(hasilDetail).map(([nama, nilai]) => {
+    const nilaiSkala5 = nilai.map(n => (n / 14 )); // disesuaikan skala 5
+    const total = nilaiSkala5.reduce((a, b) => a + b, 0);
+    const rataRata = (total / komponen.length).toFixed(2);
+    return { nama, nilai: nilaiSkala5.map(n => n.toFixed(2)), total: total.toFixed(2), rataRata };
+  }).sort((a, b) => b.total - a.total);
+
+  let html = `<table><thead><tr>
+    <th>Peringkat</th>
+    <th>Nama Pegawai</th>` +
+    komponen.map(k => `<th class="hide-on-mobile">${k}</th>`).join('') +
+    `<th>Total</th><th>Rata-rata</th></tr></thead><tbody>`;
+
+  sortedData.forEach((row, index) => {
+    html += `<tr>
+      <td>${index + 1}</td>
+      <td>${row.nama}</td>` +
+      row.nilai.map(n => `<td class="hide-on-mobile">${n}</td>`).join('') +
+      `<td>${row.total}</td>
+       <td>${row.rataRata}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+
+  function downloadExcel() {
+  const header = ["Peringkat", "Nama Pegawai", ...komponen, "Total", "Rata-rata"];
+  const data = [header];
+
+  const sortedData = Object.entries(hasilDetail).map(([nama, nilai]) => {
+    const nilaiSkala5 = nilai.map(n => (n / 14 ));
+    const total = nilaiSkala5.reduce((a, b) => a + b, 0);
+    const rataRata = (total / komponen.length).toFixed(2);
+    return {
+      nama,
+      nilai: nilaiSkala5.map(n => n.toFixed(2)),
+      total: total.toFixed(2),
+      rataRata
+    };
+  }).sort((a, b) => b.total - a.total);
+
+  sortedData.forEach((row, index) => {
+    data.push([index + 1, row.nama, ...row.nilai, row.total, row.rataRata]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Detail Medalist");
+  XLSX.writeFile(wb, "Detail_Medalist_Survei.xlsx");
+}
+
+</script>
+
+</body>
+</html>

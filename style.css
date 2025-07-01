@@ -1,0 +1,155 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7f7;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.logo-section h3 {
+  margin: 0;
+  color: #555;
+}
+
+.logo-section p {
+  margin: 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.logo {
+  width: 120px;
+  height: auto;
+}
+
+.form-group {
+  margin-top: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.employee-section {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.employee-photo {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.employee-section h3 {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+}
+
+th {
+  background-color: #eee;
+}
+
+input[type="radio"] {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.btn-container {
+  text-align: right;
+  margin-top: 20px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* ===================== */
+/* === RESPONSIVE === */
+/* ===================== */
+
+@media screen and (max-width: 600px) {
+  .container {
+    margin: 15px;
+    padding: 15px;
+  }
+
+  .logo-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .logo {
+    width: 100px;
+  }
+
+  table {
+    font-size: 12px;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .btn-container {
+    text-align: center;
+  }
+}

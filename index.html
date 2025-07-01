@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Survei Best Employee</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    .container { max-width: 800px; margin: 30px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    nav { background: #0d47a1; padding: 10px 20px; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 8px 8px; }
+    .form-group { margin-top: 20px; }
+    label { display: block; margin-bottom: 6px; font-weight: bold; }
+    select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    .employee-section { text-align: center; margin-top: 20px; }
+    .employee-photo {
+  width: 150px;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+}
+#judulTriwulan {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #0d47a1;
+  background-color: #e3f2fd;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: opacity 0.3s ease;
+}
+
+    /* .employee-photo { width: 150px; border-radius: 8px; } */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; text-align: center; padding: 10px; }
+    th { background-color: #0d47a1; color: white; }
+    .btn-container { text-align: right; margin-top: 20px; }
+    button { padding: 8px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    .next-btn { background: #007bff; color: white; font-weight: bold; }
+    .prev-btn { background: #888; color: white; }
+    .hidden { display: none; }
+    .total-wrapper { display: flex; justify-content: flex-end; margin-top: 15px; }
+    .total-box { font-weight: bold; background-color: #e3f2fd; color: #0d47a1; padding: 10px 16px; border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div>
+  <strong>Survei Best Employee</strong><br>
+  <!-- <small id="subJudulTriwulan">TRIWULAN I TAHUN 2025</small> -->
+</div>
+
+  <div>
+    <label for="triwulanSelect">Triwulan:</label>
+    <select id="triwulanSelect">
+      <option value="Triwulan1">I</option>
+      <option value="Triwulan2">II</option>
+      <option value="Triwulan3">III</option>
+      <option value="Triwulan4">IV</option>
+    </select>
+    <button onclick="window.location.href='medalist.html'" style="margin-left:10px;background:gold;color:black;border-radius:5px;">🏆 Medalist</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div id="judulTriwulan" style="text-align:center; margin-bottom: 20px; font-size: 18px; font-weight: bold; color: #0d47a1;">
+  Survei Triwulan I Tahun 2025
+</div>
+<div id="pesanSelesai" class="hidden" style="text-align:center; margin-top:30px;">
+  <h2 style="color:#2e7d32;">✅ Terima kasih! Survei Anda berhasil dikirim.</h2>
+  <div style="margin-top:20px;">
+    <button onclick="location.reload()" style="background:#0d47a1; color:white; padding:10px 20px; border:none; border-radius:6px; margin-right:10px; cursor:pointer;">Isi Survei Lagi</button>
+    <button onclick="window.location.href='medalist.html'" style="background:#43a047; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer;">Selesai</button>
+  </div>
+</div>
+
+
+  <div class="form-group" id="formResponden">
+    <label for="responden">Nama Responden</label>
+    <select id="responden">
+      <option value="">-- Pilih Nama Responden --</option>
+    </select>
+  </div>
+
+  <div class="employee-section">
+    <img src="images/logo.png" alt="Foto Pegawai" class="employee-photo">
+    <h3 id="namaPegawai"></h3>
+  </div>
+
+  <div class="total-wrapper">
+    <div class="total-box">Nilai: <span id="totalNilai">0</span></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Komponen Penilaian</th>
+        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+      </tr>
+    </thead>
+    <tbody id="formTableBody"></tbody>
+  </table>
+
+  <div class="btn-container">
+    <button id="prevBtn" class="prev-btn hidden">Previous</button>
+    <button id="nextBtn" class="next-btn" disabled>Next</button>
+
+    <!-- <button id="nextBtn" class="next-btn">Next</button> -->
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBT5x1OXqBu14Ep8TG91Tr-OkhcuSIV9qc",
+    authDomain: "kppnmajene0059.firebaseapp.com",
+    databaseURL: "https://kppnmajene0059-default-rtdb.firebaseio.com",
+    projectId: "kppnmajene0059",
+    storageBucket: "kppnmajene0059.appspot.com",
+    messagingSenderId: "258408908708",
+    appId: "1:258408908708:web:6fd534dd3aa7ea72952331"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  const semuaPegawai = [
+    "Mohammad Taufiq Hidayanto", "Hendrik Gusti Toding Rante", "Heri Susilo", "Benny Hari Kusuma",
+    "Amran S", "Muhammad Ihsan Hapil", "Zulfikar Imtinan Aptadiansyah",
+    "Nabila Dwi Nur Farisa", "Oceania Prima Sari", "Dewi Laviona", "Elmi Puja Saraswati",
+    "Regina Dewana Pinastikha Prawatya", "Elok Mutiara Sani", "Rudy Marfar"
+  ];
+
+  const hanyaRespondenSaja = [
+    "Mohammad Taufiq Hidayanto", "Hendrik Gusti Toding Rante", "Heri Susilo", "Benny Hari Kusuma", "Amran S"
+  ];
+
+  const fotoPegawai = {
+    "Muhammad Ihsan Hapil": "ihsan.JPG",
+    "Zulfikar Imtinan Aptadiansyah": "zulfikar.JPG",
+    "Nabila Dwi Nur Farisa": "nabila.JPG",
+    "Oceania Prima Sari": "ocean.JPG",
+    "Dewi Laviona": "dewi.JPG",
+    "Elmi Puja Saraswati": "elmi.JPG",
+    "Regina Dewana Pinastikha Prawatya": "regina.JPG",
+    "Elok Mutiara Sani": "elok.JPG",
+    "Rudy Marfar": "rudy.JPG",
+  };
+
+  const komponen = ["Kedisiplinan", "Kerja sama", "Kreativitas", "Komitmen", "Manajemen Waktu", "Inisiatif", "Komunikasi", "Perilaku", "Tanggung Jawab", "Pengetahuan Teknis"];
+
+  const respondenSelect = document.getElementById("responden");
+  const formTableBody = document.getElementById("formTableBody");
+  const namaPegawai = document.getElementById("namaPegawai");
+  const nextBtn = document.getElementById("nextBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const formResponden = document.getElementById("formResponden");
+  const totalNilaiSpan = document.getElementById("totalNilai");
+  const fotoElement = document.querySelector(".employee-photo");
+
+  let daftarPenilaian = [], currentIndex = 0, respondenDipilih = "", hasilPenilaian = {};
+
+  semuaPegawai.forEach(nama => {
+    const opt = document.createElement("option");
+    opt.value = nama;
+    opt.textContent = nama;
+    respondenSelect.appendChild(opt);
+  });
+
+  respondenSelect.addEventListener("change", () => {
+  const selected = respondenSelect.value;
+  if (selected) {
+    respondenDipilih = selected;
+
+    // Tetap jaga urutan berdasarkan array `semuaPegawai`
+    daftarPenilaian = semuaPegawai.filter(nama =>
+      nama !== selected && !hanyaRespondenSaja.includes(nama)
+    );
+
+    if (!hanyaRespondenSaja.includes(selected)) {
+      // tambahkan diri sendiri di posisi semula (bukan di akhir)
+      daftarPenilaian = semuaPegawai.filter(nama =>
+        !hanyaRespondenSaja.includes(nama)
+      );
+    }
+
+    currentIndex = 0;
+    tampilkanPegawai(daftarPenilaian[currentIndex]);
+
+    nextBtn.disabled = false;
+  } else {
+    nextBtn.disabled = true;
+  }
+});
+
+
+
+//   respondenSelect.addEventListener("change", () => {
+//   const selected = respondenSelect.value;
+//   if (selected) {
+//     respondenDipilih = selected;
+//     daftarPenilaian = semuaPegawai.filter(n => n !== selected && !hanyaRespondenSaja.includes(n));
+
+//     // ➕ Tambahkan logika ini
+//     if (!hanyaRespondenSaja.includes(selected)) {
+//       daftarPenilaian.push(selected); // tambahkan diri sendiri di akhir
+//     }
+
+//     currentIndex = 0;
+//     tampilkanPegawai(daftarPenilaian[currentIndex]);
+//   }
+// });
+
+
+//   respondenSelect.addEventListener("change", () => {
+//     const selected = respondenSelect.value;
+//     if (selected) {
+//       respondenDipilih = selected;
+//       daftarPenilaian = semuaPegawai.filter(n => n !== selected && !hanyaRespondenSaja.includes(n));
+//       currentIndex = 0;
+//       tampilkanPegawai(daftarPenilaian[currentIndex]);
+//     }
+//   });
+
+  nextBtn.addEventListener("click", () => {
+    simpanPenilaian();
+    if (currentIndex === 0) {
+    formResponden.classList.add("hidden");
+    document.getElementById("judulTriwulan").style.display = "none"; // sembunyikan judul
+    }
+
+
+    if (currentIndex < daftarPenilaian.length - 1) {
+      currentIndex++;
+      tampilkanPegawai(daftarPenilaian[currentIndex]);
+      prevBtn.classList.remove("hidden");
+      if (currentIndex === daftarPenilaian.length - 1) nextBtn.textContent = "Selesai";
+    } else {
+      simpanKeFirebase();
+      nextBtn.disabled = true;
+      prevBtn.disabled = true;
+    }
+  });
+
+  prevBtn.addEventListener("click", () => {
+    simpanPenilaian();
+    if (currentIndex > 0) {
+      currentIndex--;
+      tampilkanPegawai(daftarPenilaian[currentIndex]);
+      nextBtn.textContent = "Next";
+      nextBtn.disabled = false;
+      if (currentIndex === 0) {
+        prevBtn.classList.add("hidden");
+        formResponden.classList.remove("hidden");
+      }
+    }
+  });
+
+  function tampilkanPegawai(nama) {
+    namaPegawai.textContent = nama;
+
+    // Cek jika hanya sebagai responden (tidak tampilkan foto)
+    if (hanyaRespondenSaja.includes(nama)) {
+      fotoElement.style.display = "none";
+    } else {
+      fotoElement.style.display = "block";
+      const foto = fotoPegawai[nama] ? `images/${fotoPegawai[nama]}` : "https://i.imgur.com/T0FpEEn.png";
+      fotoElement.src = foto;
+    }
+
+    const penilaian = hasilPenilaian[nama] || Array(komponen.length).fill(null);
+    formTableBody.innerHTML = komponen.map((item, idx) => `
+      <tr><td>${item}</td>
+      ${[1, 2, 3, 4, 5].map(n => `
+        <td><input type="radio" name="komp${idx}" value="${n}" ${penilaian[idx] == n ? "checked" : ""} onchange="hitungTotalNilai()"></td>
+      `).join("")}</tr>
+    `).join("");
+    hitungTotalNilai();
+  }
+
+  function simpanPenilaian() {
+    const nama = daftarPenilaian[currentIndex];
+    const penilaian = komponen.map((_, i) => {
+      const selected = document.querySelector(`input[name="komp${i}"]:checked`);
+      return selected ? parseInt(selected.value) : null;
+    });
+    hasilPenilaian[nama] = penilaian;
+  }
+
+  function hitungTotalNilai() {
+    let total = 0;
+    komponen.forEach((_, i) => {
+      const selected = document.querySelector(`input[name="komp${i}"]:checked`);
+      if (selected) total += parseInt(selected.value);
+    });
+    totalNilaiSpan.textContent = total;
+  }
+
+  function simpanKeFirebase() {
+  const triwulan = document.getElementById("triwulanSelect").value;
+  const respondenID = respondenDipilih.replace(/\s/g, "_");
+  database.ref(`SurveiBestEmployee/${triwulan}/${respondenID}`).set(hasilPenilaian)
+    .then(() => {
+      // Sembunyikan semua konten interaksi
+      document.querySelector(".employee-section").classList.add("hidden");
+      document.querySelector("table").classList.add("hidden");
+      document.querySelector(".btn-container").classList.add("hidden");
+      document.querySelector(".total-wrapper").classList.add("hidden");
+
+      // Tampilkan pesan sukses
+      document.getElementById("pesanSelesai").classList.remove("hidden");
+    })
+    .catch(error => {
+      alert("Gagal simpan: " + error);
+    });
+}
+
+
+//   function simpanKeFirebase() {
+//     const triwulan = document.getElementById("triwulanSelect").value;
+//     const respondenID = respondenDipilih.replace(/\s/g, "_");
+//     database.ref(`SurveiBestEmployee/${triwulan}/${respondenID}`).set(hasilPenilaian)
+//       .then(() => {
+//         alert("Survei berhasil Dikirim!");
+//       })
+//       .catch(error => {
+//         alert("Gagal simpan: " + error);
+//       });
+//   }
+ 
+  function updateJudulTriwulan() {
+  const triwulanVal = document.getElementById("triwulanSelect").value;
+  const tahun = new Date().getFullYear();
+  const angka = {
+    "Triwulan1": "I",
+    "Triwulan2": "II",
+    "Triwulan3": "III",
+    "Triwulan4": "IV"
+  };
+  const teks = `Survei Triwulan ${angka[triwulanVal] || "I"} Tahun ${tahun}`;
+  document.getElementById("judulTriwulan").textContent = teks;
+}
+
+// panggil fungsi saat dropdown berubah
+document.getElementById("triwulanSelect").addEventListener("change", updateJudulTriwulan);
+updateJudulTriwulan(); // panggil saat pertama kali
+
+</script>
+</body>
+</html>
